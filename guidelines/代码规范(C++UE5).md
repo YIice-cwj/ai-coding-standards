@@ -1,9 +1,9 @@
 # UE5 C++ 代码规范 (UE5 C++ Coding Standards)
 
-**版本**: 2.3.0  **日期**: 2026-10-16
+**版本**: 2.4.0  **日期**: 2026-10-17
 
 > **行为规范继承**：AI 编码助手在执行本规范代码任务时，**必须严格遵循 [AI行为规范.md](./AI行为规范.md)**（含 5 阶执行模型、最小变更、计划先行与高强度验证）。
-> **基准代码规范**：本规范派生自《[代码规范(C:C++)](./代码规范(C:C++).md) v6.3.0》，在 UE5 引擎约束下做适配与仲裁；两者冲突时以本规范为准（详见附录 F 仲裁表）。
+> **基准代码规范**：本规范派生自《[代码规范(C:C++)](./代码规范(C:C++).md) v6.4.0》，在 UE5 引擎约束下做适配与仲裁；两者冲突时以本规范为准（详见附录 F 仲裁表）。
 > **适用范围**：所有 UE5 项目 C++ 新代码；修改老代码时遵循最小变更原则，不强制重构未触及的代码。
 > **优先级（高→低）**：[AI行为规范](./AI行为规范.md) > 安全规范（19）> UE5 引擎约束 > 正确性（14） > 性能（13） > 风格（1-2）。
 > **版本规则**：遵循语义化版本（SemVer）。
@@ -82,100 +82,121 @@ class UFlexiItemObject;              // 前向声明放在所有 #include 之后
 
 ## 2. 命名规范
 
-> **项目优先原则**：进入已有项目时，AI **必须**先查看现有代码的类、函数、变量命名，推断并遵循项目既有命名规范（UHT 强制前缀 U/A/F/E/I/S 不受项目风格覆盖，见 2.1）；新项目无可推断的既有命名时，**必须**询问用户采用哪种命名规范，**严禁**自行假定。
+> **UE5 官方命名契约**：UE5 项目中**全面遵循 Epic Games 官方命名规范**（全域大驼峰 PascalCase），本规范覆盖 C++ 通用规范第 2 章的所有下划线命名（snake_case）要求。
+> **项目优先原则**：进入已有项目时，AI **必须**先查看现有代码的类、函数、变量命名，推断并遵循项目既有命名习惯（UHT 强制前缀 U/A/F/E/I/S 与大驼峰不受项目风格覆盖）；新项目默认**严格遵循 UE5 官方标准命名规范**，**严禁**自行假定下划线等非官方风格。
 
 ### 2.1 类型命名（UE5 强制前缀）
 
-UE5 的 UHT（UnrealHeaderTool）**强制检查**类名前缀，错误命名会编译失败：
+UE5 的 UHT（UnrealHeaderTool）与引擎框架**强制检查**类名前缀，错误命名会直接导致编译失败：
 
 | 类型 | 前缀 | 后缀 | 示例 |
 |------|------|------|------|
 | 继承自 `UObject` 的类 | `U` | 无 | `UFlexiBagComponent` |
 | 继承自 `AActor` 的类 | `A` | 无 | `AFlexiItemPickupActor` |
-| USTRUCT 结构体 | `F` | 无 | `FFlexiItemSlot` |
+| USTRUCT 结构体及非 UObject 纯 C++ 结构体/类 | `F` | 无 | `FFlexiItemSlot`、`FVector`、`FFlexiBagManager` |
 | UENUM 枚举 | `E` | 无 | `EFlexiSortDirection` |
 | 接口（UObject 版） | `I`（接口本体）+ `U`（UInterface 包装） | 无 | `IFlexiBagFeatureInterface` / `UFlexiBagFeatureInterface` |
 | Slate 控件 | `S` | 无 | `SFlexiBagSlot` |
-| 模板参数 | `T` 前缀或大写首字母 | 无 | `typename TContainer` |
+| 模板类及模板参数 | `T` | 无 | `TArray`、`typename TContainer` |
 
-> **覆盖 C++ 规范 2.1**：UE5 项目中**禁止**使用 `_t` 后缀（如 `manager_t`）。`_t` 后缀与蓝图 API、与 UE5 官方惯例、与大量第三方插件冲突。
+> **覆盖 C++ 规范 2.1**：UE5 项目中**严禁**使用 `_t` 后缀（如 `manager_t`）。`_t` 后缀与蓝图 API、反射宏、UE5 官方惯例及第三方插件全面冲突。
 
 ### 2.2 枚举类型
-- **必须**使用 `enum class`（scoped enum），**禁止**裸 `enum`
-- 枚举值命名格式为 `类型::值`，**禁止**大写命名
-- 示例：`EFlexiSortDirection::ascending`、`EItemQuality::dark_red`
+- **必须**使用 `enum class`（scoped enum），**禁止**裸 `enum`。
+- 枚举类型名以 `E` 前缀开头，枚举值**必须**使用大驼峰（PascalCase）命名，**禁止**小写下划线或全大写命名。
+- 示例：
+  ```cpp
+  UENUM(BlueprintType)
+  enum class EFlexiSortDirection : uint8 {
+      Ascending,
+      Descending
+  };
 
-### 2.3 变量命名
-- 普通局部变量与函数形参**必须**使用下划线分隔的小写字母：`user_name`, `slot_index`
-- **UE5 引擎特化与例外（强制）**：
-  - **布尔变量**：无论局部还是成员，只要涉及逻辑判断或反射，**必须**严格遵循 UE 官方前缀 `b` 驼峰风格（如 `bIsActive`, `bCanEverTick`, `bReplicates`），禁止写 `is_active` 以保持与引擎生态、蓝图及 GAS 契约 100% 对齐。
-  - **引擎虚函数重写形参**：重写 `AActor` / `UActorComponent` 虚函数时，保留引擎原有驼峰签名，禁止破坏接口兼容性。
+  enum class EItemQuality : uint8 {
+      DarkRed,
+      Legendary
+  };
+  ```
 
-### 2.4 私有成员变量
+### 2.3 变量与形参命名（全域 PascalCase）
+- **覆盖 C++ 规范 2.3**：在 UE5 官方命名规范中，**所有变量（成员变量、局部变量与函数形参）必须统一使用大驼峰（PascalCase）**，**严禁**使用小写下划线（snake_case）。
+  - 普通局部变量：`UserName`, `SlotIndex`, `TargetLocation`, `ItemCount`
+  - 函数形参：`int32 SlotIndex`, `const FString& CharacterName`
+- **布尔变量强制 `b` 前缀**：
+  - 无论成员变量、局部变量还是函数形参，布尔变量**必须**严格遵循 UE 官方前缀 `b` + 大驼峰风格（如 `bIsActive`, `bCanEverTick`, `bIsInitialized`, `bReplicates`）。
+  - **严禁**写 `is_active` 或裸驼峰 `isActive`，以确保与引擎生态、蓝图面板及 GAS 契约 100% 对齐。
+- **引擎虚函数形参兼容**：重写 `AActor` / `UActorComponent` 虚函数时，严格保留引擎原有大驼峰签名，禁止破坏接口兼容性。
 
-> **覆盖 C++ 规范 2.4**：UE5 项目中**禁止**使用下划线后缀 `_`。
+### 2.4 成员变量命名与封装
 
-原因：
-- `UPROPERTY` 成员名字会**直接暴露给蓝图与反射系统**，后缀会污染蓝图 API
-- UE5 官方代码与所有第三方插件均不带后缀，遵循生态一致性
+> **覆盖 C++ 规范 2.4**：UE5 项目中**严禁**使用下划线后缀 `_` 或前缀。
+
+- 无论 `public`、`protected` 还是 `private`，成员变量**全部统一使用大驼峰命名**，不带任何下划线装饰。
+- **原因**：`UPROPERTY` 成员名字会直接暴露给蓝图与反射系统，后缀会污染蓝图 API 与 Details 面板；遵循 UE5 官方代码与生态一致性。
 
 ```cpp
-// ✅ UE5 风格
+// ✅ UE5 官方风格
 class UFlexiBagComponent : public UActorComponent {
 private:
     UPROPERTY(Transient)
-    TArray<FFlexiItemSlot> slot_array;  // 无后缀
+    TArray<FFlexiItemSlot> SlotArray;  // 大驼峰，无后缀
 
     UPROPERTY(Transient)
     bool bIsInitialized;                // 布尔遵循 UE5 官方 b 驼峰约定
 
     UPROPERTY(Transient)
-    TObjectPtr<UFlexiItemObjectFactory> cached_factory;  // 无后缀
+    TObjectPtr<UFlexiItemObjectFactory> CachedFactory;  // 大驼峰，无后缀
 };
 
-// ❌ 禁止：C++ 通用规范的下划线后缀
+// ❌ 禁止：下划线后缀或小写下划线
 class UFlexiBagComponent : public UActorComponent {
     UPROPERTY(Transient)
-    TArray<FFlexiItemSlot> slot_array_;  // 错！蓝图会看到 slot_array_
+    TArray<FFlexiItemSlot> slot_array_;  // 错！严禁下划线后缀与 snake_case
 };
 ```
 
-### 2.5 私有成员函数
+### 2.5 成员函数命名
 
-> **覆盖 C++ 规范 2.5**：UE5 项目中**禁止**使用单下划线后缀 `_`、双下划线前缀 `__`、单下划线前缀 `_`。
+> **覆盖 C++ 规范 2.5**：UE5 项目中**所有成员函数（含 private 辅助函数）必须统一使用大驼峰（PascalCase）**，采用动词或动宾开头。
+
+- **严禁**使用单下划线后缀 `_`、双下划线前缀 `__`、单下划线前缀 `_`。
+- **严禁**使用小写下划线（snake_case）命名函数。
 
 ```cpp
 class UFlexiBagComponent : public UActorComponent {
 private:
-    void init_slots();           // ✅ 无后缀
-    bool validate_index(int32 index) const;  // ✅
-    int32 find_first_empty_slot() const;    // ✅
+    void InitSlots();                               // ✅ 动词大驼峰，无后缀
+    bool ValidateIndex(int32 SlotIndex) const;     // ✅ 大驼峰形参与返回值
+    int32 FindFirstEmptySlot() const;              // ✅
 
     // ❌ 禁止
-    void init_slots_();          // 错！下划线后缀与 UFUNCTION 命名不一致
-    void __init_slots();        // 错！C++ 保留标识符
-    void _init_slots();         // 错！与保留标识符边界混淆
+    void init_slots();          // 错！禁止小写下划线 (snake_case)
+    void InitSlots_();          // 错！禁止下划线后缀
+    void __InitSlots();         // 错！C++ 保留标识符
+    void _InitSlots();          // 错！与保留标识符边界混淆
 };
 ```
 
-### 2.6 常量命名
-- **必须**使用全大写 + 下划线：`MAX_BUFFER_SIZE`
-- **禁止**小写、k 前缀
-- `constexpr` 常量同样遵循此规则
+### 2.6 常量与宏命名
+- `static constexpr` 与 `const` 常量：**推荐使用大驼峰（PascalCase）**（如 `static constexpr int32 MaxBufferSize = 1024;`），与 UE 引擎源码保持一致；
+- 宏定义：**必须**使用全大写 + 下划线（如 `MAX_BUFFER_SIZE`）；
+- **禁止**小写下划线常量，**禁止** `k` 前缀（如 `kMaxBufferSize`）。
 
 ### 2.7 全局变量
-- **必须**添加 `global_` 前缀
-- **禁止** `g_` 前缀或其他形式
-- UE5 项目中应尽量避免全局变量，优先使用 `UDeveloperSettings` 或 `UGameInstanceSubsystem`
+- 遵循 UE 官方规范，全局变量与引擎单例指针**必须添加 `G` 前缀**（如 `GEngine`, `GWorld`, `GConfig`）；
+- **严禁**使用 `global_` 或 `g_` 前缀；
+- UE5 项目中应尽量避免裸全局变量，优先使用 `USubsystem`（如 `UGameInstanceSubsystem`）或 `UDeveloperSettings`。
 
 ### 2.8 命名空间
-- **必须**使用小写字母
-- **禁止**嵌套过深（建议最多 2-3 层）
+- **必须**使用大驼峰（PascalCase），如 `namespace UE::FlexiBag`、`namespace Audio`；
+- **禁止**使用小写下划线命名空间；
+- **禁止**嵌套过深（建议最多 2-3 层）。
 
-### 2.9 函数命名
-- **必须**使用下划线分隔的小写字母
-- 可保留 get/set 前缀
-- 蓝图可调用函数**建议**加 `bp_` 前缀以区分（可选）
+### 2.9 函数与事件命名
+- **必须**统一使用大驼峰（PascalCase），采用动词或动宾结构（如 `CalculateScore()`, `GetSlotCount()`, `TakeDamage()`）；
+- 蓝图可调用函数同样遵循标准大驼峰，**禁止**加 `bp_` 等多余前缀（蓝图通过 Category 归类管理）；
+- 网络同步 RepNotify 函数：按 UE 官方标准命名为 `OnRep_属性名`（如 `OnRep_SlotArray()`）；
+- 委托回调与事件响应函数：推荐 `On` 开头（如 `OnItemClicked`, `OnPossessed`）。
 
 ---
 
@@ -210,21 +231,21 @@ private:
  *
  * 实现思路：基础分 + 活跃度加成 - 违规惩罚
  */
-int32 calc_score(const FUserData& user) const {
-    int32 base = user.base_score;
-    int32 bonus = user.active_days * BONUS_PER_DAY;
-    int32 penalty = user.violations * PENALTY;
-    return base + bonus - penalty;
+int32 CalculateScore(const FUserData& User) const {
+    const int32 Base = User.BaseScore;
+    const int32 Bonus = User.ActiveDays * BONUS_PER_DAY;
+    const int32 Penalty = User.Violations * PENALTY;
+    return Base + Bonus - Penalty;
 }
 ```
 
 **反例**：
 ```cpp
-int32 calc_score(const FUserData& user) const {
-    int32 base = user.base_score;
-    int32 bonus = user.active_days * BONUS_PER_DAY;  // 计算活跃度加成
-    int32 penalty = user.violations * PENALTY;       // 扣除违规惩罚
-    return base + bonus - penalty;                  // 返回总分
+int32 CalculateScore(const FUserData& User) const {
+    int32 Base = User.BaseScore;
+    int32 Bonus = User.ActiveDays * BONUS_PER_DAY;  // 计算活跃度加成
+    int32 Penalty = User.Violations * PENALTY;       // 扣除违规惩罚
+    return Base + Bonus - Penalty;                  // 返回总分
 }
 ```
 
@@ -255,7 +276,7 @@ int32 calc_score(const FUserData& user) const {
 
 **函数实现顺序必须与类中声明顺序一致**：`.cpp` 中的函数实现**必须**按照头文件中声明的先后顺序排列。
 
-**内联函数放置**：UE5 项目中，UCLASS 的内联实现通常放在类声明内（UE5 不强制 `.inl`）；非反射类的内联实现仍按 C++ 规范 4 放在访问权限区域尾部。
+**内联函数放置**：UE5 项目全面取消 `.inl` 文件分离。普通极短内联实现（1~3 行 Getter/转发）允许放在头文件类声明内；复杂函数**严禁**在类内内联，**必须**放置在类声明体外（同在 `.h` 文件中）。
 
 ---
 
@@ -265,10 +286,9 @@ int32 calc_score(const FUserData& user) const {
 
 | 文件类型 | 后缀 | 用途 |
 |----------|------|------|
-| 头文件 | `.h` | 声明 |
-| 源文件 | `.cpp` | 实现（UE5 推荐 `.cpp`，旧代码可能用 `.cc`） |
+| 头文件 | `.h` | 类与接口声明（以及模板的完整声明与类外实现） |
+| 源文件 | `.cpp` | 业务与函数实现（UE5 推荐 `.cpp`，旧代码可能用 `.cc`） |
 | 头源合一 | `.hpp` | 声明+实现（UE5 项目**禁止**使用） |
-| 模板实现 | `.inl` | 模板实现（非反射类可用） |
 
 ### 5.2 UE5 头文件特殊要求
 
@@ -311,7 +331,7 @@ public:
     virtual ~IFlexiBagFeatureInterface() = default;  // 虚析构
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    void initialize_feature(UFlexiBagMainWidget* main_bag_widget);
+    void InitializeFeature(UFlexiBagMainWidget* MainBagWidget);
 };
 ```
 
@@ -369,19 +389,19 @@ class UFlexiBagComponent : public UActorComponent {
 public:
     // BlueprintCallable：蓝图可调用
     UFUNCTION(BlueprintCallable, Category = "FlexiInventory|Logic")
-    bool move_item(int32 source_index, int32 target_index);
+    bool MoveItem(int32 SourceIndex, int32 TargetIndex);
 
     // BlueprintPure：蓝图可调用且无副作用（隐式 const）
     UFUNCTION(BlueprintPure, Category = "FlexiInventory|Query")
-    int32 get_slot_count() const;
+    int32 GetSlotCount() const;
 
     // BlueprintNativeEvent：C++ 提供默认实现，蓝图可覆盖
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-    void on_item_added(int32 slot_index);
+    void OnItemAdded(int32 SlotIndex);
 
     // BlueprintImplementableEvent：纯蓝图实现
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-    void play_pickup_anim();
+    void PlayPickupAnim();
 };
 ```
 
@@ -480,16 +500,16 @@ auto p = new widget();         // 错！推导为 widget*，应避免裸 new
 
 ## 11. 模板规范
 
-### 11.1 模板实现位置
-- 模板参数**必须**使用有意义的名称：`template<typename T>`
-- 类模板**必须**通过 `using` 为模板参数及相关类型定义语义化别名（`value_type` / `size_type` 等，放 public 类型定义区），类内及成员函数签名**禁止**直接使用 `T`
-- 模板实现**必须**放在 `.inl` 文件，由对应 `.h` 在末尾 `#include`
-- 模板特化**必须**明确标注
-- **禁止**将模板实现放入 `.cpp`（除非使用显式实例化）
+### 11.1 模板定义放置与内联控制
+- **无需分离文件**：UE5 项目中的类模板与函数模板**无需**通过独立文件（如 `.inl`）分离实现，所有模板声明与实现**全部统一定义在 `.h` 头文件中**。
+- **复杂函数类外定义**：复杂成员函数（非平凡逻辑、多行实现）**严禁**直接定义在类声明体内，**必须**放置在类体外部（在同一 `.h` 文件的类声明之后）进行定义，确保类声明接口清晰紧凑。
+- **严禁复杂函数内联**：**严禁**出现复杂函数的内联（包括因直接在类体内定义导致的隐式内联，或显式标注 `inline` 导致内联膨胀）；仅极短实现（1~3 行的简单 Getter/转发或概念受约束函数）**允许**在类体内直接内联。
+- **禁止普通实现入 .cpp**：**禁止**将普通模板实现单独写入 `.cpp`（显式实例化或全特化特例除外）。
+- 类模板**必须**通过 `using` 为模板参数及相关类型定义语义化别名（如 `using ValueType = T;` / `using SizeType = int32;`，放置在 public 类型定义区），类内及成员函数签名**禁止**直接使用裸 `T`。
 
-### 11.2 UE5 反射类与模板
+### 11.2 UE5 反射类与模板约束
 
-> **UE5 特化规则**：UCLASS / USTRUCT / UENUM **禁止**是模板类，因 UHT 不支持模板反射。
+> **UE5 引擎硬约束**：`UCLASS` / `USTRUCT` / `UENUM` **禁止**是模板类，因 UHT 反射系统不支持模板。
 
 如果需要泛型容器，用 USTRUCT 包装 + `TArray<TObjectPtr<UObject>>` + 类型检查：
 
@@ -500,7 +520,7 @@ struct FLEXIINVENTORY_API FFlexiItemSlot {
     GENERATED_BODY()
 
     UPROPERTY()
-    TObjectPtr<UFlexiItemObject> item_object;  // 多态对象，运行期判定类型
+    TObjectPtr<UFlexiItemObject> ItemObject;  // 多态对象，运行期判定类型
 };
 
 // ❌ 错误：UHT 不支持模板 USTRUCT
@@ -508,16 +528,17 @@ template<typename T>
 USTRUCT()
 struct FFlexiContainer {
     GENERATED_BODY()
-    T item;
+    T Item;
 };
 ```
 
-### 11.3 非反射类的模板
+### 11.3 非反射纯 C++ 工具类的模板规范
 
-非反射的纯 C++ 工具类**可以**使用模板，核心规则（同 C++ 规范 9）：
-- 模板参数**必须**使用有意义的名称：`template<typename T>`
-- **必须**将模板实现放在 `.inl` 文件，由对应 `.h` 在末尾 `#include`
-- 模板特化**必须**明确标注；**禁止**模板实现放入 `.cpp`（除非显式实例化）或在头文件中直接定义
+非反射的纯 C++ 工具类**可以**使用模板，规则全面对齐 C++ 规范 9.2：
+- 模板参数**必须**使用大驼峰前缀命名（如 `typename TElement` 或 `typename TContainer`）。
+- **统一在头文件实现**：所有实现全部定义在 `.h` 文件中，**严禁**创建或引入 `.inl` 文件。
+- **复杂函数类外定义**：类体内仅保留极短内联函数，其余复杂实现一律在类声明外部定义，禁止复杂逻辑内联。
+- 模板显式全特化或偏特化**必须**明确标注。
 
 ---
 
@@ -598,20 +619,20 @@ UE5 三种字符串：
 
 **正例**：
 ```cpp
-[[nodiscard]] TOptional<UFlexiItemObject*> find_item(int32 slot_index) const {
-    if (!validate_index(slot_index)) {
-        UE_LOG(LogFlexiInventory, Warning, TEXT("Invalid slot index: %d"), slot_index);
+[[nodiscard]] TOptional<UFlexiItemObject*> FindItem(int32 SlotIndex) const {
+    if (!ValidateIndex(SlotIndex)) {
+        UE_LOG(LogFlexiInventory, Warning, TEXT("Invalid slot index: %d"), SlotIndex);
         return {};
     }
-    return slots[slot_index].item_object;
+    return Slots[SlotIndex].ItemObject;
 }
 ```
 
 **反例**：
 ```cpp
-UFlexiItemObject* find_item(int32 slot_index) const {
-    if (slot_index < 0) throw std::out_of_range("...");  // 错！UE5 禁用异常
-    return slots[slot_index].item_object;
+UFlexiItemObject* FindItem(int32 SlotIndex) const {
+    if (SlotIndex < 0) throw std::out_of_range("...");  // 错！UE5 禁用异常
+    return Slots[SlotIndex].ItemObject;
 }
 ```
 
@@ -646,9 +667,9 @@ DECLARE_LOG_CATEGORY_EXTERN(LogFlexiInventory, Log, All);
 DEFINE_LOG_CATEGORY(LogFlexiInventory);
 
 // 使用
-UE_LOG(LogFlexiInventory, Log, TEXT("Item added to slot %d"), slot_index);
-UE_LOG(LogFlexiInventory, Warning, TEXT("Slot %d is locked"), slot_index);
-UE_LOG(LogFlexiInventory, Error, TEXT("Failed to save bag: %s"), *error_msg);
+UE_LOG(LogFlexiInventory, Log, TEXT("Item added to slot %d"), SlotIndex);
+UE_LOG(LogFlexiInventory, Warning, TEXT("Slot %d is locked"), SlotIndex);
+UE_LOG(LogFlexiInventory, Error, TEXT("Failed to save bag: %s"), *ErrorMessage);
 ```
 
 ### 15.2 日志级别
@@ -896,18 +917,18 @@ class UMyComponent : public UActorComponent {
 
 **正例**：
 ```cpp
-void process(FStringView sv);             // 函数参数：安全
-FString s = make_string();
-FStringView sv = s;                       // 同作用域：安全
+void Process(FStringView InView);             // 函数参数：安全
+FString SourceStr = MakeString();
+FStringView View = SourceStr;                 // 同作用域：安全
 ```
 
 **反例**：
 ```cpp
-FStringView get_view() {
-    FString s = make_temp();               // 临时对象
-    return s;                              // 错！返回指向已销毁对象的 view
+FStringView GetView() {
+    FString TempStr = MakeTemp();              // 临时对象
+    return TempStr;                            // 错！返回指向已销毁对象的 view
 }
-FStringView sv = TEXT("hello");            // 危险！字面量生命周期模糊
+FStringView View = TEXT("hello");              // 危险！字面量生命周期模糊
 ```
 
 ---
@@ -931,10 +952,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
 bool FFlexiBagComponentTest::RunTest(const FString& Parameters) {
-    UFlexiBagComponent* bag = NewObject<UFlexiBagComponent>();
-    bool result = bag->try_add_item(testItem, 5);
-    TestTrue(TEXT("Add item should succeed"), result);
-    TestEqual(TEXT("Slot count should be 1"), bag->count_item(TestItem), 5);
+    UFlexiBagComponent* Bag = NewObject<UFlexiBagComponent>();
+    bool bResult = Bag->TryAddItem(TestItem, 5);
+    TestTrue(TEXT("Add item should succeed"), bResult);
+    TestEqual(TEXT("Slot count should be 1"), Bag->CountItem(TestItem), 5);
     return true;
 }
 ```
@@ -1022,25 +1043,25 @@ bool FFlexiBagComponentTest::RunTest(const FString& Parameters) {
 void AMyPlayerState::PostInitializeComponents() {
     Super::PostInitializeComponents();
     if (HasAuthority()) {
-        try_init_ability_system();
+        TryInitAbilitySystem();
     }
 }
 
 void AMyPlayerState::OnRep_Owner() {
     Super::OnRep_Owner();
     // 客户端在网络所有者就绪时自驱动
-    try_init_ability_system();
+    TryInitAbilitySystem();
 }
 ```
 
 **反例**：
 ```cpp
 // ❌ 错误：在 GameMode 登录回调中越权代劳网络初始化
-void AMyGameMode::PostLogin(APlayerController* new_player) {
-    Super::PostLogin(new_player);
-    if (AMyPlayerState* ps = new_player->GetPlayerState<AMyPlayerState>()) {
+void AMyGameMode::PostLogin(APlayerController* NewPlayer) {
+    Super::PostLogin(NewPlayer);
+    if (AMyPlayerState* PS = NewPlayer->GetPlayerState<AMyPlayerState>()) {
         // 错！外部只知道逻辑就绪，客户端此时根本尚未"网络就绪"，会导致客户端初始化丢失
-        ps->init_ability_system();
+        PS->InitAbilitySystem();
     }
 }
 ```
@@ -1054,38 +1075,38 @@ void AMyGameMode::PostLogin(APlayerController* new_player) {
 - **机理与原因**：
   - 在网络游戏中，Actor 重生（Respawn）、Possess 重新附身、无缝切图（Seamless Travel）或断线重连时，生命周期函数（如 `PossessedBy`、`OnRep_PlayerState`）会被**多次重复调用**。
   - 若每次初始化都重新创建对象（如重新分配 ASC 或属性集），将导致旧对象被 GC 回收后产生悬垂指针、已绑定的委托与监听失效、网络同步句柄断裂。
-- **工程实践提示**：类似项目中的 `try_init_ability_system()` 与 `init_attribute_set()` 均须按此原则收敛，确保存续实例始终复用。
+- **工程实践提示**：类似项目中的 `TryInitAbilitySystem()` 与 `InitAttributeSet()` 均须按此原则收敛，确保存续实例始终复用。
 
 **正例**：
 ```cpp
 // ✅ 正确：创建与初始化解耦，多次调用安全幂等
-void AMyPlayerState::try_init_ability_system() {
-    if (!ability_system_component) {
+void AMyPlayerState::TryInitAbilitySystem() {
+    if (!AbilitySystemComponent) {
         // 首次创建（或构造函数已创建）：仅执行一次
-        ability_system_component = NewObject<UAbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
-        ability_system_component->SetIsReplicated(true);
-        ability_system_component->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+        AbilitySystemComponent = NewObject<UAbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
+        AbilitySystemComponent->SetIsReplicated(true);
+        AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
     }
 
-    if (!attribute_set) {
+    if (!AttributeSet) {
         // 属性集实例仅创建一次，后续永远复用
-        attribute_set = NewObject<UMyAttributeSet>(this, TEXT("AttributeSet"));
+        AttributeSet = NewObject<UMyAttributeSet>(this, TEXT("AttributeSet"));
     }
 
     // 后续可被多次幂等调用的初始化逻辑（如重新附身时刷新 ActorInfo）
-    AActor* avatar_actor = GetPawn();
-    ability_system_component->InitAbilityActorInfo(this, avatar_actor);
+    AActor* AvatarActor = GetPawn();
+    AbilitySystemComponent->InitAbilityActorInfo(this, AvatarActor);
 }
 ```
 
 **反例**：
 ```cpp
 // ❌ 错误：每次初始化都重新分配实例，覆盖现有对象
-void AMyPlayerState::init_ability_system() {
+void AMyPlayerState::InitAbilitySystem() {
     // 错！重生或二次调用时重新创建，破坏已有的网络同步状态与委托绑定
-    ability_system_component = NewObject<UAbilitySystemComponent>(this);
-    attribute_set = NewObject<UMyAttributeSet>(this);
-    ability_system_component->InitAbilityActorInfo(this, GetPawn());
+    AbilitySystemComponent = NewObject<UAbilitySystemComponent>(this);
+    AttributeSet = NewObject<UMyAttributeSet>(this);
+    AbilitySystemComponent->InitAbilityActorInfo(this, GetPawn());
 }
 ```
 
@@ -1106,33 +1127,33 @@ void AMyPlayerState::init_ability_system() {
 **正例**：
 ```cpp
 // ✅ 正确：首要检查端位身份，职责清晰，未匹配端位默认不做
-void AMyCharacter::init_player_context() {
-    const bool is_authority = HasAuthority();
-    const bool is_local = IsLocallyControlled();
+void AMyCharacter::InitPlayerContext() {
+    const bool bIsAuthority = HasAuthority();
+    const bool bIsLocal = IsLocallyControlled();
 
-    if (is_authority) {
+    if (bIsAuthority) {
         // 服务器端：仅负责授予初始技能与权威状态配置
-        grant_default_abilities();
+        GrantDefaultAbilities();
     }
 
-    if (is_local) {
+    if (bIsLocal) {
         // 本地玩家端：仅负责创建本地 HUD 与输入绑定
-        setup_local_hud();
-        bind_input_actions();
+        SetupLocalHUD();
+        BindInputActions();
     }
 
-    // 远端模拟客户端（!is_authority && !is_local）：默认不做，完全依赖属性与状态复制驱动表现
+    // 远端模拟客户端（!bIsAuthority && !bIsLocal）：默认不做，完全依赖属性与状态复制驱动表现
 }
 ```
 
 **反例**：
 ```cpp
 // ❌ 错误：缺少身份分叉，全端无差别执行
-void AMyCharacter::init_player_context() {
+void AMyCharacter::InitPlayerContext() {
     // 错！Dedicated Server 会尝试创建 Slate UI 导致崩溃；远端模拟代理也会创建本地 HUD
-    create_player_hud();
+    CreatePlayerHUD();
     // 错！客户端也尝试调用仅服务器有效的授予技能
-    grant_default_abilities();
+    GrantDefaultAbilities();
 }
 ```
 
@@ -1406,10 +1427,10 @@ C++ 通用规范与 UE5 引擎约束发生冲突时，按下表仲裁：
 | 冲突点 | C++ 规范 | UE5 约束 | 仲裁结果 | 理由 |
 |--------|----------|----------|----------|------|
 | 头文件包含顺序 | 对应实现 → C 标准库 → C++ 标准库 → 第三方 → 项目 | `CoreMinimal.h` 必须最前 | **UE5 优先** | UHT/PCH 强制要求 |
-| 类命名后缀 | `_t`（如 `manager_t`） | U/A/F/E/I/T 前缀，无 `_t` | **UE5 优先** | `_t` 后缀与蓝图 API 冲突 |
-| 布尔与虚函数形参命名 | 全小写下划线，禁止驼峰 | 布尔强制 `b` 驼峰，虚函数保留签名 | **UE5 优先** | 引擎反射、蓝图细节面板与原生虚函数兼容 |
-| UPROPERTY 成员后缀 | `_`（如 `mutex_`） | 不带后缀 | **UE5 优先** | 反射系统直接暴露给蓝图 |
-| 私有方法后缀 | `_`（如 `init_()`） | 不带后缀 | **UE5 优先** | 与 UFUNCTION 命名一致 |
+| 命名风格（函数/变量/形参/枚举值） | 全小写下划线 (snake_case) | UE5 官方大驼峰 (PascalCase)，布尔加 `b` 前缀 | **UE5 优先** | 遵循 Epic Games 官方编码规范，保障反射、蓝图与引擎生态一致性 |
+| 类命名前缀与后缀 | `_t` 后缀，无强制大写前缀 | U/A/F/E/I/T 前缀，严禁 `_t` | **UE5 优先** | UHT 反射与蓝图 API 强约束 |
+| 成员与方法下划线后缀 | `_` 后缀（如 `data_`, `init_()`） | 严禁下划线后缀，统一大驼峰 | **UE5 优先** | 反射系统直接暴露给蓝图，与 UFUNCTION 命名一致 |
+| 模板实现文件 | 统一定义在 `.h` 中，复杂函数在类外定义 | 统一定义在 `.h` 中，复杂函数在类外定义 | **完全对齐** | 两者均已取消 `.inl` 分离文件，消除工程碎片化 |
 | 函数体内注释 | 禁止解释性行内注释 | 同 C++ 规范（放行元指令） | **遵循 C++ 规范** | 无冲突 |
 | 类结构顺序 | public 类型 → public 接口 → private 辅助/变量 | 同 C++ 规范（接口优先） | **遵循 C++ 规范** | 无冲突 |
 | `enum class` | 必须 | 同 C++ 规范 | **遵循 C++ 规范** | UE5 也推荐 `enum class` |
@@ -1433,6 +1454,7 @@ C++ 通用规范与 UE5 引擎约束发生冲突时，按下表仲裁：
 
 | 版本 | 日期 | 变更摘要 |
 |:---:|:---:|---|
+| **2.4.0** | 2026-10-17 | **全域对齐 UE5 官方命名与取消模板分离**：第 2 章全域确立 UE5 官方 PascalCase 大驼峰命名契约，彻底废除下划线命名；第 11 章与第 5.1 节取消 `.inl` 模板文件分离，声明与实现统一定义在 `.h` 头文件中并严禁复杂函数内联；同步仲裁表与全篇代码正反例；基准对齐 C++ 规范 v6.4.0。 |
 | **2.3.0** | 2026-10-16 | **注释纯粹性与死代码优化放行**：第 3.4 节新增注释纯粹性要求（严禁自言自语与废弃代码）；第 7.6 节继承并特化死代码清理与等价化简放行特权（严禁误删蓝图反射绑定）；基准对齐 C++ 规范 v6.3.0。 |
 | **2.2.0** | 2026-10-15 | **消除冲突与接口优先**：类结构重构为接口优先排布；放行 UE5 官方 `b` 驼峰布尔前缀与虚函数签名兼容；放行 Linter 抑制指令；基准对齐 C++ 规范 v6.2.0。 |
 | **2.1.0** | 2026-10-14 | **新增必要防御原则**：第 7.4 节强化引擎上下文与架构契约信任，明确非确定不判断就会出错绝不添加判断，严禁在已被保证的回调中层层判空。 |
