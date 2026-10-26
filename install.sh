@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# AI Coding Standards (ai_coding_standards) 一键安装/更新脚本
+# AI Coding Standards (ai-coding-standards) 一键安装/更新脚本
 # 支持系统: macOS, Linux, WSL, Git Bash
-# 仓库源: https://github.com/YIice-cwj/ai_coding_standards
+# 仓库源: https://github.com/YIice-cwj/ai-coding-standards
 # ==============================================================================
 
 set -e
 
-REPO_URL="https://github.com/YIice-cwj/ai_coding_standards.git"
-TAR_URL="https://github.com/YIice-cwj/ai_coding_standards/archive/refs/heads/main.tar.gz"
+REPO_URL="https://github.com/YIice-cwj/ai-coding-standards.git"
+TAR_URL="https://github.com/YIice-cwj/ai-coding-standards/archive/refs/heads/main.tar.gz"
 
 # 终端色彩
 RED='\033[0;31m'
@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 echo -e "${CYAN}${BOLD}"
 echo "  ╔═══════════════════════════════════════════════════════════════════╗"
 echo "  ║         AI Coding Standards - 一键安装与智能部署工具              ║"
-echo "  ║        https://github.com/YIice-cwj/ai_coding_standards           ║"
+echo "  ║        https://github.com/YIice-cwj/ai-coding-standards           ║"
 echo "  ╚═══════════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 

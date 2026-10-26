@@ -1,6 +1,6 @@
 # ==============================================================================
-# AI Coding Standards (ai_coding_standards) PowerShell 一键安装/更新脚本
-# 仓库源: https://github.com/YIice-cwj/ai_coding_standards
+# AI Coding Standards (ai-coding-standards) PowerShell 一键安装/更新脚本
+# 仓库源: https://github.com/YIice-cwj/ai-coding-standards
 # ==============================================================================
 
 [CmdletBinding()]
@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host "║         AI Coding Standards - PowerShell 一键安装工具             ║" -ForegroundColor Cyan
-Write-Host "║        https://github.com/YIice-cwj/ai_coding_standards           ║" -ForegroundColor Cyan
+Write-Host "║        https://github.com/YIice-cwj/ai-coding-standards           ║" -ForegroundColor Cyan
 Write-Host "╚═══════════════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 Set-Location $TargetDir
@@ -65,9 +65,15 @@ New-Item -ItemType Directory -Path $tempBase -Force | Out-Null
 try {
     Write-Host "⬇️  正在下载最新规范资产包..." -ForegroundColor Blue
     $zipPath = Join-Path $tempBase "repo.zip"
-    Invoke-WebRequest -Uri "https://github.com/YIice-cwj/ai_coding_standards/archive/refs/heads/main.zip" -OutFile $zipPath
+    Invoke-WebRequest -Uri "https://github.com/YIice-cwj/ai-coding-standards/archive/refs/heads/main.zip" -OutFile $zipPath
     Expand-Archive -Path $zipPath -DestinationPath $tempBase -Force
-    $srcDir = Join-Path $tempBase "ai_coding_standards-main"
+    $srcDir = Join-Path $tempBase "ai-coding-standards-main"
+    if (-not (Test-Path $srcDir)) {
+        $srcDir = Join-Path $tempBase "ai_coding_standards-main"
+    }
+    if (-not (Test-Path $srcDir)) {
+        $srcDir = (Get-ChildItem -Path $tempBase -Directory | Select-Object -First 1).FullName
+    }
 
     Write-Host "📂 正在部署核心规范到当前工作区..." -ForegroundColor Blue
     Copy-Item (Join-Path $srcDir "AGENTS.md") $AbsoluteTarget -Force

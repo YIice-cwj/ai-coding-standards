@@ -11,18 +11,18 @@
 
 ### macOS / Linux / WSL
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YIice-cwj/ai_coding_standards/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/YIice-cwj/ai-coding-standards/main/install.sh | bash
 ```
 
 ### Windows (PowerShell)
 ```powershell
-irm https://raw.githubusercontent.com/YIice-cwj/ai_coding_standards/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/YIice-cwj/ai-coding-standards/main/install.ps1 | iex
 ```
 
 ### Windows (CMD / 双击运行)
 下载本仓库中的 `install.bat` 置于项目根目录双击执行，或在 CMD 中运行：
 ```cmd
-curl -fsSL -o install.bat https://raw.githubusercontent.com/YIice-cwj/ai_coding_standards/main/install.bat && install.bat
+curl -fsSL -o install.bat https://raw.githubusercontent.com/YIice-cwj/ai-coding-standards/main/install.bat && install.bat
 ```
 
 > **🛡️ 智能防误触与备份保护机制**：

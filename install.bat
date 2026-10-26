@@ -1,15 +1,15 @@
 @echo off
 chcp 65001 >nul
 :: ==============================================================================
-:: AI Coding Standards (ai_coding_standards) Windows 一键安装/更新脚本
-:: 仓库源: https://github.com/YIice-cwj/ai_coding_standards
+:: AI Coding Standards (ai-coding-standards) Windows 一键安装/更新脚本
+:: 仓库源: https://github.com/YIice-cwj/ai-coding-standards
 :: ==============================================================================
 
 setlocal enabledelayedexpansion
 
 echo =====================================================================
 echo          AI Coding Standards - Windows 一键安装与智能部署工具
-echo         https://github.com/YIice-cwj/ai_coding_standards
+echo         https://github.com/YIice-cwj/ai-coding-standards
 echo =====================================================================
 echo.
 
@@ -62,12 +62,13 @@ mkdir "%TEMP_DIR%" >nul 2>&1
 echo [INFO] 正在拉取最新规范资产...
 where git >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    git clone --depth 1 https://github.com/YIice-cwj/ai_coding_standards.git "%TEMP_DIR%\repo" --quiet
+    git clone --depth 1 https://github.com/YIice-cwj/ai-coding-standards.git "%TEMP_DIR%\repo" --quiet
     set "SRC_DIR=%TEMP_DIR%\repo"
 ) else (
     echo [INFO] 本地未检测到 git，正在使用 PowerShell 下载压缩包...
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/YIice-cwj/ai_coding_standards/archive/refs/heads/main.zip' -OutFile '%TEMP_DIR%\repo.zip'; Expand-Archive -Path '%TEMP_DIR%\repo.zip' -DestinationPath '%TEMP_DIR%'"
-    set "SRC_DIR=%TEMP_DIR%\ai_coding_standards-main"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/YIice-cwj/ai-coding-standards/archive/refs/heads/main.zip' -OutFile '%TEMP_DIR%\repo.zip'; Expand-Archive -Path '%TEMP_DIR%\repo.zip' -DestinationPath '%TEMP_DIR%'"
+    set "SRC_DIR=%TEMP_DIR%\ai-coding-standards-main"
+    if not exist "!SRC_DIR!\AGENTS.md" set "SRC_DIR=%TEMP_DIR%\ai_coding_standards-main"
 )
 
 if not exist "!SRC_DIR!\AGENTS.md" (
