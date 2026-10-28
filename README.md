@@ -105,7 +105,7 @@ graph TD
 | **[60-Web前端规范](./guidelines/60-Web前端规范/01-TypeScript与基础规范.md)** | **现代 Web 前端标准**：TS 强类型窄化、React Hooks 闭包防御、状态下沉、SSR 水合安全 | React / Next.js / TypeScript 开发 |
 | **[70-Python工程规范](./guidelines/70-Python工程规范/01-风格类型与现代特性.md)** | **Python 工程特化标准**：严格类型标注、Pydantic v2、asyncio 非阻塞并发、Poetry 锁 | Python 后端 / 数据与 AI 工程 |
 | **[40-协作规范](./guidelines/40-协作规范/01-Git协作与版本规范.md)** | **版本协同与发布标准**：B-GIT 提交权限铁律、结构化提交契约、分支模型、SemVer | Git 提交、分支与版本管理 |
-| **[50-审查规范](./guidelines/50-审查规范/01-代码审查规范.md)** | **代码质检审查规则**：过度防御一票否决、零行内注释核查、地表止痛否决、安全凭据扫描 | PR / MR 审查、自动化 Code Review |
+| **[50-审查规范](./guidelines/50-审查规范/01-代码审查规范.md)** | **代码质检审查规则**：过度防御一票否决、零行内与多行分标签注释核查、地表止痛否决、安全凭据扫描 | PR / MR 审查、自动化 Code Review |
 
 ---
 
