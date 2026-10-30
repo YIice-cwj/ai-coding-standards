@@ -36,10 +36,10 @@ curl -fsSL -o install.bat https://raw.githubusercontent.com/YIice-cwj/ai-coding-
 
 无需在不同工具间维护多份 `.cursorrules`、`.windsurfrules` 等分裂配置，本项目通过 **自举式智能主控网关 ([AGENTS.md](./AGENTS.md))** 实现全平台大一统：
 
-* **全平台通用**：你在对话中**永远只需要给 AI 这一个文件**（如 `@AGENTS.md 帮我写一个xxx`），或在 Cursor/Trae/Windsurf/Copilot 的设置中将 `AGENTS.md` 指定为项目唯一的 System Prompt。
+* **支持读取仓库文件的 AI 工具通用**：在 Cursor/Trae/Windsurf/Copilot/Claude Code 等可读取仓库文件的工具中，你只需给 AI `AGENTS.md`（如 `@AGENTS.md 帮我写一个xxx`），或将其指定为项目唯一的 System Prompt；不支持读取仓库文件的 Web 端工具请使用打包后的规范文本（见下文“单文件环境打包”）。
 * **AI 自动化自举执行**：
   1. `AGENTS.md` 内置了不可跳过的**行为宪法（计划先行、严格最小变更、非必死不判断、未获指令禁提交）**，防越权机制 100% 物理生效！
-  2. `AGENTS.md` 自带**动态任务路由器**，AI 会根据指令关键词自动探测领域（C++ / UE5 / Web / Python / 通用 / 审查 / Git / 多Agent），并主动调阅对应领域的分节规范，绝不浪费无关 Token。
+  2. `AGENTS.md` 自带**动态任务路由器**，AI 会根据指令关键词自动探测领域（C++ / UE5 / Web / Python / 通用 / 审查 / Git / 多Agent），并继续加载该领域的全部相关专项规范，绝不浪费无关 Token。
 
 ```mermaid
 graph TD
