@@ -1,0 +1,47 @@
+name: Guidelines CI
+
+on:
+  push:
+    paths:
+      - "AGENTS.md"
+      - "README.md"
+      - "guidelines/**"
+      - "install.sh"
+      - "install.ps1"
+      - "install.bat"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/guidelines.yml"
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "README.md"
+      - "guidelines/**"
+      - "install.sh"
+      - "install.ps1"
+      - "install.bat"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/guidelines.yml"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax check
+        run: python -m py_compile guidelines/scripts/*.py
+
+      - name: Verify links
+        run: python guidelines/scripts/verify_links.py
+
+      - name: Verify versions
+        run: python guidelines/scripts/verify_versions.py
+
+      - name: Lint rules
+        run: python guidelines/scripts/lint_rules.py

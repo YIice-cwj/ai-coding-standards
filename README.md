@@ -1,7 +1,11 @@
 # AI Coding Standards (AI 编程规范体系)
 
 > 面向 AI 编程助手（Agent）的**模块化、编号化、单一事实源 (SSOT)** 规范体系。  
-> 采用 **"智能主控网关 + 行为规范与代码规范解耦 + 标准模板 + 自动化工具"** 架构，覆盖全局 AI Agent 工作流、多智能体协同、通用多语言、现代 C++、UE5 游戏引擎、Web 前端与 Python 工程，全平台统一通过 `AGENTS.md` 驱动，可无缝嵌入 Trae / Cursor / Copilot / Windsurf / Claude 等主流 AI 工具。
+> 采用 **"智能主控网关 + 行为规范与代码规范解耦 + 标准模板 + 自动化工具"** 架构，覆盖全局 AI Agent 工作流、多智能体协同、通用工程基线、现代 C++、UE5 游戏引擎、Web 前端与 Python 工程，全平台统一通过 `AGENTS.md` 驱动，可无缝嵌入 Trae / Cursor / Copilot / Windsurf / Claude 等主流 AI 工具。
+
+> **当前专项覆盖范围**：C++、UE5、Web（TypeScript/React/Next.js）、Python 与通用工程；Go、Java、Rust、C#/.NET、Vue、Django、FastAPI 等暂无专项规范，相关任务仅应用通用基线，避免虚构专项规则。
+
+**版本**: 2.14.0  **日期**: 2026-11-07
 
 ---
 
@@ -44,12 +48,12 @@ curl -fsSL -o install.bat https://raw.githubusercontent.com/YIice-cwj/ai-coding-
 ```mermaid
 graph TD
     M[AGENTS.md<br/>智能主控网关 · 自动探测分发] -->|行为基座| A[00-行为规范/<br/>铁律 · 五阶 · 归档 · 预检 · 多Agent]
-    M -->|Git 路由| F[40-协作规范/<br/>提交契约 · 分支 · SemVer · LFS]
-    M -->|C++ 路由| C[20-CPP规范/<br/>现代 C++（6 分节）]
-    M -->|UE5 路由| D[30-UE5规范/<br/>UE5 引擎（9 分节）]
-    M -->|Web 路由| W[60-Web前端规范/<br/>TypeScript · React]
-    M -->|Python 路由| P[70-Python工程规范/<br/>FastAPI · Pydantic · 异步]
-    M -->|通用工程| B[10-通用代码规范/<br/>API · 数据库 · 可观测性]
+    M -->|Git 路由| F[40-协作规范/<br/>提交契约 · PR/发布 · SemVer · 文档治理]
+    M -->|C++ 路由| C[20-CPP规范/<br/>现代 C++（7 分节）]
+    M -->|UE5 路由| D[30-UE5规范/<br/>UE5 引擎（11 分节）]
+    M -->|Web 路由| W[60-Web前端规范/<br/>TS · React · 安全 · 性能]
+    M -->|Python 路由| P[70-Python工程规范/<br/>Pydantic · 异步 · 数据访问]
+    M -->|通用工程| B[10-通用代码规范/<br/>API · 数据库 · 可观测性 · 应用安全]
     M -->|审查路由| E[50-审查规范/<br/>PR 与代码审查质检]
     C -.->|引擎特性派生与仲裁| D
     T[guidelines/templates/<br/>L3计划 · B8熔断 · 记忆快照] -.-> M
@@ -70,25 +74,29 @@ graph TD
 ├── install.sh                         # 【一键安装】macOS / Linux / WSL 一键安装部署脚本
 ├── install.bat                        # 【一键安装】Windows CMD 一键安装部署脚本
 ├── install.ps1                        # 【一键安装】Windows PowerShell 一键安装部署脚本
+├── .pre-commit-config.yaml            # 【Git Hook】链接、版本与规则校验
+├── .github/workflows/guidelines.yml   # 【CI】链接、版本与规则门禁
 └── guidelines/                        # 【全套规范知识总库】
     ├── INDEX.md                       # 【导航 + 版本登记处】单主题导航地图 · 规则 ID 速查 · 版本权威表
-    ├── templates/                     # 【标准交付模板库】L3计划(B2) · B8三振求助 · 记忆快照(B6) · 审查报告
+    ├── templates/                     # 【标准交付模板库】L3计划(B2) · B8三振求助 · 记忆快照(B6) · 审查报告 · ADR
     │   ├── L3_PLAN_TEMPLATE.md
     │   ├── B8_CIRCUIT_BREAKER_REPORT.md
     │   ├── MEMORY_SNAPSHOT_TEMPLATE.md
-    │   └── CODE_REVIEW_TEMPLATE.md
+    │   ├── CODE_REVIEW_TEMPLATE.md
+    │   └── ADR_TEMPLATE.md
     ├── scripts/                       # 【自动化工程工具】CI/Pre-commit 静态扫描与打包工具
     │   ├── verify_links.py            # 全库相对链接与锚点完整性静态扫描
+    │   ├── verify_versions.py         # 域版本与 INDEX 版本登记一致性校验
     │   ├── lint_rules.py              # 规范一票否决项自动化静态合规扫描
     │   └── bundle_prompt.py           # 单文件系统提示词打包编译器
     ├── 00-行为规范/                   # 【全局行为宪法】规则 SSOT（含多Agent与MCP安全）
-    ├── 10-通用代码规范/               # 【多语言通用基准】（API契约/数据库/可观测性）
-    ├── 20-CPP规范/                    # 【现代 C++ 专用】（15层布局/现代特性/内存）
-    ├── 30-UE5规范/                    # 【UE5 引擎特化】（反射/GC/网络生命周期）
-    ├── 40-协作规范/                   # 【版本协作标准】（B-GIT 提交权限/SemVer）
+    ├── 10-通用代码规范/               # 【多语言通用基准】（API契约/数据库/可观测性/应用安全）
+    ├── 20-CPP规范/                    # 【现代 C++ 专用】（15层布局/现代特性/内存/构建测试与性能）
+    ├── 30-UE5规范/                    # 【UE5 引擎特化】（反射/GC/网络/资源加载/UI与输入）
+    ├── 40-协作规范/                   # 【版本协作标准】（B-GIT 提交/PR/发布授权 · SemVer · 文档治理/ADR）
     ├── 50-审查规范/                   # 【代码审查规范】（审查矩阵与输出标准）
-    ├── 60-Web前端规范/                # 【现代 Web 特化】（TS严格模式/React闭包与水合）
-    └── 70-Python工程规范/             # 【Python 工程特化】（严格类型/Pydantic/异步安全）
+    ├── 60-Web前端规范/                # 【现代 Web 特化】（TS严格模式/React闭包与水合/安全与性能）
+    └── 70-Python工程规范/             # 【Python 工程特化】（严格类型/Pydantic/异步安全/数据访问）
 ```
 
 ### 各规范职责划分
@@ -96,16 +104,16 @@ graph TD
 | 域 / 目录 | 定位与核心内容 | 适用场景 |
 |---|---|---|
 | **[AGENTS.md](./AGENTS.md)** | **智能主控总指挥网关**：核心宪法、动态规范路由表、CoT 协议 | 向 AI 提供的唯一入口文件 |
-| **[guidelines/templates/](./guidelines/templates/)** | **标准交付模板库**：L3/L4 方案对比、B8 阻断报告、记忆快照、审查报告 | 规范交付输出时填空使用 |
-| **[guidelines/scripts/](./guidelines/scripts/)** | **自动化工程防呆**：链接校验、规范 Lint 扫描、Prompt 单文件打包 | CI/CD 与 Git Hook 门禁 |
+| **[guidelines/templates/](./guidelines/templates/)** | **标准交付模板库**：L3/L4 方案对比、B8 阻断报告、记忆快照、审查报告、ADR 决策记录 | 规范交付输出时填空使用 |
+| **[guidelines/scripts/](./guidelines/scripts/)** | **自动化工程防呆**：链接校验、版本一致性校验、规范 Lint 扫描、Prompt 单文件打包 | CI/CD 与 Git Hook 门禁 |
 | **[00-行为规范](./guidelines/00-行为规范/01-核心铁律与五阶执行模型.md)** | **Agent 最高行为协议**：铁律（B1~B8）、五阶状态机、Bug 根因修复、多Agent信封与 MCP 安全 | 所有编程任务的基础行为底座 |
-| **[10-通用代码规范](./guidelines/10-通用代码规范/01-风格命名与注释.md)** | **多语言通用基准**：代码自解释、$\ge 95\%$ 测试覆盖门禁与真测试契约、API 契约、零停机数据库演进与可观测性 | 通用工程、服务端与系统开发 |
-| **[20-CPP规范](./guidelines/20-CPP规范/01-格式命名与注释.md)** | **现代 C++ 专用标准**：15 层类排布、`concept`、NRVO、智能指针、并发安全 | 现代 C++ 项目（C++20/23/17） |
-| **[30-UE5规范](./guidelines/30-UE5规范/01-命名格式与注释.md)** | **UE5 引擎特化标准**：UHT 反射宏、GC 内存、网络复制与 RPC、Gameplay 生命周期 | Unreal Engine 5 C++ 游戏开发 |
-| **[60-Web前端规范](./guidelines/60-Web前端规范/01-TypeScript与基础规范.md)** | **现代 Web 前端标准**：TS 强类型窄化、React Hooks 闭包防御、状态下沉、SSR 水合安全 | React / Next.js / TypeScript 开发 |
-| **[70-Python工程规范](./guidelines/70-Python工程规范/01-风格类型与现代特性.md)** | **Python 工程特化标准**：严格类型标注、Pydantic v2、asyncio 非阻塞并发、Poetry 锁 | Python 后端 / 数据与 AI 工程 |
-| **[40-协作规范](./guidelines/40-协作规范/01-Git协作与版本规范.md)** | **版本协同与发布标准**：B-GIT 提交权限铁律、结构化提交契约、分支模型、SemVer | Git 提交、分支与版本管理 |
-| **[50-审查规范](./guidelines/50-审查规范/01-代码审查规范.md)** | **代码质检审查规则**：五阶审查流水线（Bug排查 ➔ 规范核验 ➔ 优化出方案 ➔ 回归完工 ➔ 人工裁决） | PR / MR 审查、自动化 Code Review |
+| **[10-通用代码规范](./guidelines/10-通用代码规范/01-风格命名与注释.md)** | **多语言通用基准**：代码自解释、$\ge 95\%$ 测试覆盖门禁与真测试契约、测试策略与覆盖工具链、应用安全基线、API 契约、零停机数据库演进与可观测性 | 通用工程、服务端与系统开发 |
+| **[20-CPP规范](./guidelines/20-CPP规范/01-格式命名与注释.md)** | **现代 C++ 专用标准**：15 层类排布、`concept`、NRVO、智能指针、并发安全、Modern CMake、Sanitizer、测试覆盖率、性能/ABI/序列化 | 现代 C++ 项目（C++20/23/17） |
+| **[30-UE5规范](./guidelines/30-UE5规范/01-命名格式与注释.md)** | **UE5 引擎特化标准**：UHT 反射宏、GC 内存、网络复制与 RPC、Gameplay 生命周期、资源异步加载、SaveGame、UMG/Slate、Enhanced Input、Insights 性能预算 | Unreal Engine 5 C++ 游戏开发 |
+| **[60-Web前端规范](./guidelines/60-Web前端规范/01-TypeScript与基础规范.md)** | **现代 Web 前端标准**：TS 强类型窄化、React Hooks 闭包防御、状态下沉、SSR 水合安全、前端工程化/测试/安全/a11y/Core Web Vitals | React / Next.js / TypeScript 开发 |
+| **[70-Python工程规范](./guidelines/70-Python工程规范/01-风格类型与现代特性.md)** | **Python 工程特化标准**：严格类型标注、Pydantic v2、asyncio 非阻塞并发、Poetry/uv 锁、工程化与数据访问、Alembic 迁移 | Python 后端 / 数据与 AI 工程 |
+| **[40-协作规范](./guidelines/40-协作规范/01-Git协作与版本规范.md)** | **版本协同与发布标准**：B-GIT 提交/推送/PR/发布逐项授权、Conventional Commits、分支模型、PR/MR 与合并策略、冲突解决、SemVer、tag/release、CHANGELOG、ADR 与文档治理 | Git 提交、PR 评审、发布与文档治理 |
+| **[50-审查规范](./guidelines/50-审查规范/01-代码审查规范.md)** | **代码质检审查规则**：五阶审查流水线（Bug排查 ➔ 规范核验 ➔ 优化出方案 ➔ 回归完工 ➔ 人工裁决）；覆盖应用安全、性能与依赖供应链审查，输出 BLOCKER/MAJOR/MINOR/NIT 分级报告 | PR / MR 审查、自动化 Code Review |
 
 ---
 
@@ -136,15 +144,15 @@ graph TD
 
 | 文件/域 | 当前版本 | 日期 |
 |---|:---:|:---:|
-| AGENTS (智能网关) | **2.9.0** | 2026-11-02 |
-| 00-行为规范 | **2.9.0** | 2026-11-02 |
-| 10-通用代码规范 | **2.13.0** | 2026-11-02 |
-| 20-CPP规范 | **6.9.0** | 2026-10-28 |
-| 30-UE5规范 | **3.4.0** | 2026-10-28 |
-| 40-协作规范 | **2.3.0** | 2026-10-30 |
-| 50-审查规范 | **1.14.0** | 2026-11-02 |
-| 60-Web前端规范 | **1.0.0** | 2026-10-26 |
-| 70-Python工程规范 | **1.0.0** | 2026-10-26 |
+| AGENTS (智能网关) | **2.14.0** | 2026-11-07 |
+| 00-行为规范 | **2.11.0** | 2026-11-07 |
+| 10-通用代码规范 | **2.15.0** | 2026-11-07 |
+| 20-CPP规范 | **6.11.0** | 2026-11-07 |
+| 30-UE5规范 | **3.5.0** | 2026-11-07 |
+| 40-协作规范 | **2.4.0** | 2026-11-07 |
+| 50-审查规范 | **1.16.0** | 2026-11-07 |
+| 60-Web前端规范 | **1.1.0** | 2026-11-07 |
+| 70-Python工程规范 | **1.1.0** | 2026-11-07 |
 
 ---
 
@@ -153,7 +161,14 @@ graph TD
 提交前建议运行本地校验脚本：
 ```bash
 python3 guidelines/scripts/verify_links.py    # 校验全库相对链接有效性
+python3 guidelines/scripts/verify_versions.py # 校验文件头版本与 INDEX 登记一致
 python3 guidelines/scripts/lint_rules.py      # 校验规范违规项
+```
+
+可选启用 Git Hook 门禁：
+
+```bash
+pre-commit install
 ```
 
 ---

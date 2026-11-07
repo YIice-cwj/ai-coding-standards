@@ -6,3 +6,13 @@
 .idea/
 .history/
 .trae/
+.screenshots/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+SYSTEM_PROMPT_*.md
+.guidelines_backup_*/

@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: verify-links
+        name: 校验 Markdown 相对链接
+        entry: python3 guidelines/scripts/verify_links.py
+        language: system
+        pass_filenames: false
+      - id: verify-versions
+        name: 校验文件头版本与 INDEX 登记
+        entry: python3 guidelines/scripts/verify_versions.py
+        language: system
+        pass_filenames: false
+      - id: lint-rules
+        name: 扫描规范一票否决项
+        entry: python3 guidelines/scripts/lint_rules.py
+        language: system
+        pass_filenames: false
