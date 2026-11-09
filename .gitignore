@@ -16,3 +16,4 @@ build/
 dist/
 SYSTEM_PROMPT_*.md
 .guidelines_backup_*/
+.analysis/

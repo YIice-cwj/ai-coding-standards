@@ -1,6 +1,6 @@
 # AI 主控智能网关 (Autonomous AI Master Gateway)
 
-**版本**: 2.14.0  **日期**: 2026-11-07  **角色**: AI 工程师 Agent 最高主控协议
+**版本**: 2.15.0  **日期**: 2026-11-09  **角色**: AI 工程师 Agent 最高主控协议
 
 > **【致 AI 助手 (System Instruction)】**：  
 > 当你被赋予本文件时，意味着你已进入本项目的规范管辖区。本文件是你的**最高任务调度器与行为准则**。  
@@ -36,10 +36,10 @@ AI 在理解用户需求后，**必须根据下表判定当前任务领域，并
 
 | 任务特征触发词 | 判定技术域 | 域入口（须继续加载同域专项） | 关键技术红线摘要 |
 |---|:---:|---|---|
-| `C++`, `cpp`, `CMake`, `.h`, `.cc`, `vcpkg`, `Conan`, `GoogleTest`, `Catch2`, `sanitizer`, `llvm-cov` | **现代 C++ 域** | **[20-CPP规范/](./guidelines/20-CPP规范/01-格式命名与注释.md)** | 接口优先 15 层类排布、实现与声明 1:1 对齐、禁止 `return std::move(x)` 破坏 NRVO、RAII 智能指针、禁止判断 `&ref == nullptr` 与 `this == nullptr`、Modern CMake、Sanitizer、测试覆盖率、性能/ABI/序列化 |
-| `UE5`, `Unreal`, `UObject`, `蓝图`, `Gameplay`, `UMG`, `Slate`, `Enhanced Input`, `SaveGame`, `TSoftObjectPtr`, `Insights`, `资源加载` | **UE5 引擎域** | **[30-UE5规范/](./guidelines/30-UE5规范/01-命名格式与注释.md)** | 引擎 U/A/F 前缀（严禁 `_t` 后缀）、布尔强制 `b` 驼峰、`UPROPERTY` 防 GC 误杀、生命周期已保证时严禁层层 `IsValid()`、禁止原生 `std::string`/`std::thread`、软引用与异步加载、UMG/Slate、Enhanced Input、SaveGame 版本化、Insights 性能预算 |
-| `TS`, `TypeScript`, `React`, `Next.js`, `前端`, `Web`, `可访问性`, `a11y`, `Core Web Vitals` | **Web 前端域** | **[60-Web前端规范/](./guidelines/60-Web前端规范/01-TypeScript与基础规范.md)** | 严禁 `any`（unknown + 类型收缩）、Hooks 闭包依赖完整、状态下沉、Server/Client 边界隔离、SSR 水合安全、Web 安全（XSS/CSRF/CSP）、WCAG 2.1 AA、Core Web Vitals、前端测试与构建预算 |
-| `Python`, `Pydantic`, `Pytest`, `SQLAlchemy`, `Alembic`, `asyncio` | **Python 工程域** | **[70-Python工程规范/](./guidelines/70-Python工程规范/01-风格类型与现代特性.md)** | 严格类型标注、严禁可变默认实参、Pydantic v2 强契约、asyncio 禁阻塞调用与超时/取消、工程化与数据访问、Alembic 迁移、pytest 覆盖率、测试禁 sleep |
+| `C++`, `cpp`, `CMake`, `.h`, `.cc`, `vcpkg`, `Conan`, `GoogleTest`, `Catch2`, `benchmark`, `基准测试`, `性能回归`, `sanitizer`, `llvm-cov` | **现代 C++ 域** | **[20-CPP规范/](./guidelines/20-CPP规范/01-格式命名与注释.md)** | 接口优先 15 层类排布、实现与声明 1:1 对齐、禁止 `return std::move(x)` 破坏 NRVO、RAII 智能指针、禁止判断 `&ref == nullptr` 与 `this == nullptr`、Modern CMake、Sanitizer、测试覆盖率、性能/ABI/序列化 |
+| `UE5`, `Unreal`, `UObject`, `蓝图`, `Gameplay`, `UMG`, `Slate`, `Enhanced Input`, `SaveGame`, `TSoftObjectPtr`, `Insights`, `benchmark`, `基准测试`, `性能回归`, `资源加载` | **UE5 引擎域** | **[30-UE5规范/](./guidelines/30-UE5规范/01-命名格式与注释.md)** | 引擎 U/A/F 前缀（严禁 `_t` 后缀）、布尔强制 `b` 驼峰、`UPROPERTY` 防 GC 误杀、生命周期已保证时严禁层层 `IsValid()`、禁止原生 `std::string`/`std::thread`、软引用与异步加载、UMG/Slate、Enhanced Input、SaveGame 版本化、Insights 性能预算 |
+| `TS`, `TypeScript`, `React`, `Next.js`, `前端`, `Web`, `可访问性`, `a11y`, `Lighthouse`, `benchmark`, `基准测试`, `Core Web Vitals` | **Web 前端域** | **[60-Web前端规范/](./guidelines/60-Web前端规范/01-TypeScript与基础规范.md)** | 严禁 `any`（unknown + 类型收缩）、Hooks 闭包依赖完整、状态下沉、Server/Client 边界隔离、SSR 水合安全、Web 安全（XSS/CSRF/CSP）、WCAG 2.1 AA、Core Web Vitals、前端测试与构建预算 |
+| `Python`, `Pydantic`, `Pytest`, `pytest-benchmark`, `SQLAlchemy`, `Alembic`, `asyncio`, `基准测试`, `性能回归` | **Python 工程域** | **[70-Python工程规范/](./guidelines/70-Python工程规范/01-风格类型与现代特性.md)** | 严格类型标注、严禁可变默认实参、Pydantic v2 强契约、asyncio 禁阻塞调用与超时/取消、工程化与数据访问、Alembic 迁移、pytest 覆盖率、测试禁 sleep |
 | `API`, `数据库`, `SQL`, `可观测性`, `微服务`, `通用架构`, `安全`, `认证授权`, `XSS`, `CSRF`, `SSRF` | **通用工程域** | **[10-通用代码规范/](./guidelines/10-通用代码规范/01-风格命名与注释.md)** | 意图常量自解释、SLAP 单一抽象层次、核心业务测试覆盖率 $\ge 95\%$ 与禁滥竽充数测试、应用安全基线（认证授权/输入输出/SSRF/加密）、API 幂等与游标分页、数据库零停机迁移与窄事务、PII 隐私脱敏、内部契约信任 |
 | `多Agent`, `Swarm`, `MCP`, `工具协议`, `注入防范` | **高级智能体域** | **[00-行为规范/06](./guidelines/00-行为规范/06-多智能体协作与工具协议.md)** | 接力信封 Schema、MCP 工具调用权限与幂等契约、间接提示词注入免疫 |
 | `审查`, `Review`, `PR`, `MR`, `质检`, `验收` | **代码审查域** | **[50-审查规范/](./guidelines/50-审查规范/01-代码审查规范.md)** | 严格扮演审查员：执行五阶审查流水线（先查真实Bug排除极端臆想 ➔ 查规范合规 ➔ 查优化出方案保等价 ➔ 回归完工判定 ➔ 人工裁决门禁）；覆盖应用安全、性能与依赖审查，输出 BLOCKER/MAJOR/MINOR/NIT 分级报告 |
@@ -70,6 +70,7 @@ AI 在理解用户需求后，**必须根据下表判定当前任务领域，并
 | Python 工程化 / 数据访问 / Alembic 迁移 / 服务边界 | [70/03 工程化与数据访问规范](./guidelines/70-Python工程规范/03-工程化与数据访问规范.md) |
 | 通用架构 / 单文件单类 / 职责边界 | [10/02 架构健壮性与工程安全](./guidelines/10-通用代码规范/02-架构健壮性与工程安全.md) |
 | 通用测试策略 / 覆盖工具 / Flaky 治理 | [10/03 测试控制流与速查](./guidelines/10-通用代码规范/03-测试控制流与速查.md) |
+| 性能验证 / 基准测试 / 性能回归 | [10/03 §5 性能验证与基准测试](./guidelines/10-通用代码规范/03-测试控制流与速查.md)（**SSOT**） · [20/07](./guidelines/20-CPP规范/07-构建测试与性能规范.md) · [30/10](./guidelines/30-UE5规范/10-资源加载序列化与性能规范.md) · [60/03](./guidelines/60-Web前端规范/03-前端工程化测试与安全规范.md) · [70/02](./guidelines/70-Python工程规范/02-并发工程与测试规范.md) |
 | 通用 API / 数据库 / 可观测性与 PII | [10/05 API与接口契约规范](./guidelines/10-通用代码规范/05-API与接口契约规范.md) · [10/06 数据库与持久化演进规范](./guidelines/10-通用代码规范/06-数据库与持久化演进规范.md) · [10/07 可观测性与隐私规范](./guidelines/10-通用代码规范/07-可观测性与隐私规范.md) |
 | 通用应用安全 / 认证授权 / XSS/CSRF/SSRF / 加密 | [10/08 应用安全规范](./guidelines/10-通用代码规范/08-应用安全规范.md) |
 | 代码审查 / PR 质检 / 安全/性能/依赖审查 | [50/01 代码审查规范](./guidelines/50-审查规范/01-代码审查规范.md) · [审查报告模板](./guidelines/templates/CODE_REVIEW_TEMPLATE.md) |

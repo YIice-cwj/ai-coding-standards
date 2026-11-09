@@ -47,7 +47,7 @@
 | **语言与引擎专有陷阱** | `PASS / BLOCKER` | C++ 15 层类排布与防破坏 NRVO / UE5 UPROPERTY GC 保护与命名法 |
 | **工具与凭据安全 (B-SEC)** | `PASS / BLOCKER` | 绝对杜绝明文 Key/Token 泄露，依赖锁定，临时排查探针用毕即焚 |
 | **应用安全 (R-SEC-*)** | `PASS / BLOCKER` | 认证授权/输入输出/CSRF/SSRF/加密/反序列化/限流；详见 [10/08 应用安全](../10-通用代码规范/08-应用安全规范.md) |
-| **性能与资源** | `PASS / MAJOR` | 可证实 N+1/热路径/无界内存；性能结论须有 profile/benchmark 证据 |
+| **性能与资源** | `PASS / MAJOR` | 可证实 N+1/热路径/无界内存；性能结论须有 profile/benchmark 证据（命令/环境/基线/统计量） |
 | **依赖与供应链** | `PASS / BLOCKER` | 新增依赖必要性、Lockfile、CVE、许可证与 SBOM 审核 |
 | **认知负荷控制与 SLAP** | `PASS / MAJOR` | 缩进深度 $\le 3$，长条件解构为具名意图常量，遵循单一抽象层次 |
 | **接口幂等/窄事务/隐私** | `PASS / MAJOR` | 核心写接口幂等键、局部毫秒级窄事务、PII 个人隐私掩码脱敏 |
